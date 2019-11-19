@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  "Template to Launch a Hosted Zone"
+Parameters:
+  DomainName:
+    Description: The name of the Hosted Zone
+    Type: String
+    MaxLength: 255
+    ConstraintDescription: Must be value Domain Name
+    AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-)
+
+  Application:
+    Description: "A tag to associate the application using this hosted zone"
+    Type: String
+Resources:
+  TheHostedZone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      HostedZoneConfig:
+        Comment: !Sub "Hosted Zone for ${DomainName}"
+      HostedZoneTags:
+        - Key: Application
+          Value: !Ref Application
+      Name: !Ref DomainName
+
+Outputs:
+  TheHostedZone:
+    Value: !Ref TheHostedZone
+  DomainName:
+    Value: !Ref DomainName
+  HostedZoneNameServers:
+    Description: The name server for the new hosted zone
+    Value: !Join [',', !GetAtt TheHostedZone.NameServers]
+    Export:
+      Name: !Sub "${AWS::StackName}-NameServers"
